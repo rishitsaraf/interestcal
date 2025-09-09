@@ -169,10 +169,16 @@ def calc_sc(annual_interest_rate_input):
     )
     mask = ~df["date"].duplicated(keep='last')
     df_last_per_date = df[mask].copy()
+    df_last_per_date["date"] = pd.to_datetime(df_last_per_date["date"], format="%d %b %Y")
+    df_last_per_date["day_diff"] = (
+        df_last_per_date["date"].shift(-1) - df_last_per_date["date"]
+    ).dt.days
+    df_last_per_date["day_diff"] = df_last_per_date["day_diff"].fillna(1)
+
     df_last_per_date["daily_interest"] = np.where(
-    df_last_per_date["balance"] < 0,
-    df_last_per_date["balance"] * -1*(annual_interest_rate_input / 365),
-    0
+        df_last_per_date["balance"] < 0,
+        df_last_per_date["balance"] * -1 *(annual_interest_rate_input / 365) * df_last_per_date["day_diff"],
+        0
     )
     total_interest = df_last_per_date["daily_interest"].sum()
 
