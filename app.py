@@ -87,12 +87,17 @@ def calc_axis(annual_interest_rate_input):
         st.stop()
 
     # 8) Annual rate in absolute percent → fraction
-    annual_interest_rate = annual_interest_rate_input / 100.0
+    annual_interest_rate = annual_interest_rate_input
+
+    df_last_per_date["tran_date"] = pd.to_datetime(df_last_per_date["tran_date"],format="%d-%m-%Y")
+    df_last_per_date["day"] = df_last_per_date["tran_date"].dt.day_name()
+
 
     # 9) Daily interest only if balance is negative; else 0
     df_last_per_date["daily_interest"] = np.where(
         df_last_per_date["balanceinr"] < 0,
-        df_last_per_date["balanceinr"] * -1*(annual_interest_rate_input / 365),
+        df_last_per_date["balanceinr"] * -1 * (annual_interest_rate / 365) *
+        np.where(df_last_per_date["day"] == "Saturday", 2, 1),
         0
     )
 
