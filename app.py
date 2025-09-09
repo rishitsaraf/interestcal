@@ -91,13 +91,18 @@ def calc_axis(annual_interest_rate_input):
 
     df_last_per_date["tran_date"] = pd.to_datetime(df_last_per_date["tran_date"],format="%d-%m-%Y")
     df_last_per_date["day"] = df_last_per_date["tran_date"].dt.day_name()
+    # Calculate difference in days with next row
+    df_last_per_date["day_diff"] = (
+        df_last_per_date["tran_date"].shift(-1) - df_last_per_date["tran_date"]
+    ).dt.days
+    df_last_per_date["day_diff"] = df_last_per_date["day_diff"].fillna(1)
+
 
 
     # 9) Daily interest only if balance is negative; else 0
     df_last_per_date["daily_interest"] = np.where(
         df_last_per_date["balanceinr"] < 0,
-        df_last_per_date["balanceinr"] * -1 * (annual_interest_rate / 365) *
-        np.where(df_last_per_date["day"] == "Saturday", 2, 1),
+        df_last_per_date["balanceinr"] * -1 *(annual_interest_rate / 365) * df_last_per_date["day_diff"],
         0
     )
 
