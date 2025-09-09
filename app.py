@@ -200,13 +200,25 @@ def calc_hdfc(annual_interest_rate_input):
       .str.replace(r"[^a-z0-9_]", "", regex=True)  # remove non-alphanumeric
     )
     df2 = df.iloc[::-1].reset_index(drop=True)
+    df2["transaction_date"] = pd.to_datetime(df2["transaction_date"], format="%d/%m/%Y %H:%M:%S")
+    df2["day"] = df2["transaction_date"].dt.day_name()
     # keep only the last occurrence per date, preserving original order
     mask = ~df2["value_date"].duplicated(keep='last')
     df_last_per_date = df2[mask].copy()
+    # Make sure it's datetime
+    df_last_per_date["value_date"] = pd.to_datetime(
+        df_last_per_date["value_date"], format="%d/%m/%Y"
+    )
+    # Calculate difference in days with next row
+    df_last_per_date["day_diff"] = (
+        df_last_per_date["value_date"].shift(-1) - df_last_per_date["value_date"]
+    ).dt.days
+    df_last_per_date["day_diff"] = df_last_per_date["day_diff"].fillna(1)
+    
     df_last_per_date["daily_interest"] = np.where(
-    df_last_per_date["running_balance"] < 0,
-    df_last_per_date["running_balance"] * -1*(annual_interest_rate_input / 365),
-    0
+        df_last_per_date["running_balance"] < 0,
+        df_last_per_date["running_balance"] * -1 *(annual_interest_rate_input / 365) * df_last_per_date["day_diff"],
+        0
     )
     total_interest = df_last_per_date["daily_interest"].sum()
 
