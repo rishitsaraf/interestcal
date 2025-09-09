@@ -23,18 +23,8 @@ st.markdown("""
 st.title("Interest Calculator")
 
 # ---- Upload file ----
-uploaded = st.file_uploader("Upload Excel (.xls / .xlsx)", type=["xls", "xlsx"])
-if uploaded is not None:
-    # detect extension
-    file_ext = os.path.splitext(uploaded.name)[1]
+uploaded = st.file_uploader("Upload Excel")
 
-    if file_ext == ".xlsx":
-        df = pd.read_excel(uploaded, engine="openpyxl")
-    elif file_ext == ".xls":
-        df = pd.read_excel(uploaded, engine="xlrd")
-    else:
-        st.error("Unsupported file type")
-        st.stop()
 # ---- Select bank and annual interest rate ----
 col1, col2 = st.columns(2)
 with col1:

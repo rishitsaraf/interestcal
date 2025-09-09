@@ -1,5 +1,6 @@
 streamlit>=1.0
 pandas>=1.5
 numpy>=1.24
-openpyxl>=3.0
-xlrd>=2.0
+openpyxl>=3.0   # modern Excel (.xlsx, .xlsm, .xltx, .xltm)
+xlrd>=2.0       # legacy Excel (.xls)
+odfpy>=1.4      # optional: LibreOffice / OpenOffice .ods
